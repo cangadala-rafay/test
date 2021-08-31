@@ -1,0 +1,6319 @@
+{
+    "components": {
+      "schemas": {
+        "APIError": {
+          "description": "API Error",
+          "properties": {
+            "code": {
+              "description": "Error Code",
+              "format": "int32",
+              "title": "Code",
+              "type": "integer"
+            },
+            "external": {
+              "description": "External Error",
+              "title": "External",
+              "type": "string"
+            },
+            "internal": {
+              "description": "Internal Error string",
+              "title": "Internal",
+              "type": "string"
+            }
+          },
+          "title": "API Error"
+        },
+        "Addon": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/AddonSpec"
+            }
+          },
+          "type": "object"
+        },
+        "AddonList": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Addon"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "type": "object"
+        },
+        "AddonSpec": {
+          "properties": {
+            "artifact": {
+              "$ref": "#/components/schemas/ArtifactSpec"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "sharing": {
+              "$ref": "#/components/schemas/SharingSpec"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "Agent": {
+          "description": "Agent declaration",
+          "properties": {
+            "apiVersion": {
+              "default": "gitops.k8smgmt.io/v3",
+              "description": "API Version of the agent resource",
+              "title": "API Version",
+              "type": "string"
+            },
+            "kind": {
+              "default": "Agent",
+              "description": "Kind of the agent resource",
+              "title": "Kind",
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/AgentSpec"
+            },
+            "status": {
+              "$ref": "#/components/schemas/Status"
+            }
+          },
+          "required": [
+            "apiVersion",
+            "kind",
+            "metadata",
+            "spec"
+          ],
+          "title": "Agent",
+          "type": "object"
+        },
+        "AgentList": {
+          "description": "Agent list",
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Agent"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "title": "AgentList",
+          "type": "object"
+        },
+        "AgentMeta": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "AgentSpec": {
+          "properties": {
+            "active": {
+              "description": "flag to indicate if the agent is active",
+              "title": "Active",
+              "type": "boolean"
+            },
+            "cluster": {
+              "$ref": "#/components/schemas/ClusterMeta"
+            },
+            "type": {
+              "description": "type of the agent",
+              "enum": [
+                "Cluster"
+              ],
+              "title": "Agent Type",
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "cluster"
+          ],
+          "type": "object"
+        },
+        "ApprovalConfig": {
+          "properties": {
+            "approvers": {
+              "items": {
+                "$ref": "#/components/schemas/Approver"
+              },
+              "type": "array"
+            },
+            "timeout": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "Approver": {
+          "properties": {
+            "ssoUser": {
+              "type": "boolean"
+            },
+            "userName": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "ArtifactSpec": {
+          "description": "specification of an artifact",
+          "properties": {
+            "artifact": {
+              "oneOf": [
+                {
+                  "description": "represents a list of YAML files",
+                  "properties": {
+                    "paths": {
+                      "description": "list of YAML files represented by their relative path",
+                      "items": {
+                        "$ref": "#/components/schemas/File"
+                      },
+                      "title": "Paths",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "paths"
+                  ],
+                  "title": "Uploaded YAML Artifact",
+                  "type": "object"
+                },
+                {
+                  "description": "represents an Helm chart and zero or more values files",
+                  "properties": {
+                    "chartPath": {
+                      "$ref": "#/components/schemas/File"
+                    },
+                    "valuesPaths": {
+                      "description": "represents a Helm Values by their relative path",
+                      "items": {
+                        "$ref": "#/components/schemas/File"
+                      },
+                      "title": "ValuesPaths",
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "chartPath"
+                  ],
+                  "title": "Uploaded Helm Artifact",
+                  "type": "object"
+                },
+                {
+                  "description": "represents YAML files in a Git repo",
+                  "properties": {
+                    "paths": {
+                      "items": {
+                        "$ref": "#/components/schemas/File"
+                      },
+                      "type": "array"
+                    },
+                    "repository": {
+                      "type": "string"
+                    },
+                    "revision": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "repository",
+                    "revision",
+                    "paths"
+                  ],
+                  "title": "YAML In Git Repo Artifact",
+                  "type": "object"
+                },
+                {
+                  "description": "represents Helm files in a Git repo",
+                  "properties": {
+                    "chartPath": {
+                      "$ref": "#/components/schemas/File"
+                    },
+                    "repository": {
+                      "type": "string"
+                    },
+                    "revision": {
+                      "type": "string"
+                    },
+                    "valuesPaths": {
+                      "items": {
+                        "$ref": "#/components/schemas/File"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "repository",
+                    "revision",
+                    "chartPath"
+                  ],
+                  "title": "Helm in Git Repo Artifact",
+                  "type": "object"
+                },
+                {
+                  "description": "represents Helm chart in a Helm repo",
+                  "properties": {
+                    "chartName": {
+                      "type": "string"
+                    },
+                    "chartVersion": {
+                      "type": "string"
+                    },
+                    "repository": {
+                      "type": "string"
+                    },
+                    "valuesPaths": {
+                      "items": {
+                        "$ref": "#/components/schemas/File"
+                      },
+                      "type": "array"
+                    }
+                  },
+                  "required": [
+                    "repository",
+                    "chartName",
+                    "chartVersion"
+                  ],
+                  "title": "Helm in Helm Repo",
+                  "type": "object"
+                },
+                {
+                  "description": "represents managed alert manager",
+                  "properties": {
+                    "configmap": {
+                      "$ref": "#/components/schemas/File"
+                    },
+                    "configuraton": {
+                      "$ref": "#/components/schemas/File"
+                    },
+                    "secret": {
+                      "$ref": "#/components/schemas/File"
+                    },
+                    "statefulset": {
+                      "$ref": "#/components/schemas/File"
+                    }
+                  },
+                  "required": [
+                    "configmap",
+                    "secret",
+                    "configuraton",
+                    "statefulset"
+                  ],
+                  "title": "Managed Alert Manager",
+                  "type": "object"
+                }
+              ]
+            },
+            "artifactType": {
+              "description": "type of the artifact",
+              "enum": [
+                "Helm",
+                "Yaml",
+                "AlertManager"
+              ],
+              "title": "Artifact Type",
+              "type": "string"
+            },
+            "options": {
+              "oneOf": [
+                {
+                  "description": "options for deploying Helm artifacts",
+                  "properties": {
+                    "atomic": {
+                      "description": "deploy Helm artifact with atomic flag",
+                      "title": "Atomic",
+                      "type": "boolean"
+                    },
+                    "cleanUpOnFail": {
+                      "type": "boolean"
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "disableOpenAPIValidation": {
+                      "type": "boolean"
+                    },
+                    "force": {
+                      "description": "deploy Helm artifact with force flag",
+                      "title": "Force",
+                      "type": "boolean"
+                    },
+                    "keepHistory": {
+                      "type": "boolean"
+                    },
+                    "maxHistory": {
+                      "description": "limit Helm artifact history",
+                      "format": "int32",
+                      "title": "Max History",
+                      "type": "integer"
+                    },
+                    "noHooks": {
+                      "description": "deploy Helm artifact without hooks",
+                      "title": "Force",
+                      "type": "boolean"
+                    },
+                    "renderSubChartNotes": {
+                      "description": "render sub chart notes",
+                      "title": "Render Sub Chart Notes",
+                      "type": "boolean"
+                    },
+                    "resetValues": {
+                      "type": "boolean"
+                    },
+                    "reuseValues": {
+                      "type": "boolean"
+                    },
+                    "setString": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array"
+                    },
+                    "skipCRDs": {
+                      "type": "boolean"
+                    },
+                    "timeout": {
+                      "type": "string"
+                    },
+                    "wait": {
+                      "description": "deploy Helm artifact with wait flag",
+                      "title": "Wait",
+                      "type": "boolean"
+                    }
+                  },
+                  "title": "Helm Options",
+                  "type": "object"
+                },
+                {
+                  "description": "options for deploying YAML artifacts",
+                  "properties": {
+                    "disableOpenAPIValidation": {
+                      "type": "boolean"
+                    },
+                    "force": {
+                      "type": "boolean"
+                    }
+                  },
+                  "title": "YAML Options",
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "required": [
+            "artifactType",
+            "artifact"
+          ],
+          "title": "ArtifactSpec",
+          "type": "object"
+        },
+        "Blueprint": {
+          "description": "Blueprint declaration",
+          "properties": {
+            "apiVersion": {
+              "default": "infra.k8smgmt.io/v3",
+              "description": "API Version of the blueprint resource",
+              "title": "API Version",
+              "type": "string"
+            },
+            "kind": {
+              "default": "Blueprint",
+              "description": "Kind of the blueprint resource",
+              "title": "Kind",
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/BlueprintSpec"
+            }
+          },
+          "required": [
+            "apiVersion",
+            "kind",
+            "metadata",
+            "spec"
+          ],
+          "title": "Blueprint",
+          "type": "object"
+        },
+        "BlueprintAddon": {
+          "description": "blueprint addon spec",
+          "properties": {
+            "dependsOn": {
+              "description": "other addons current addons depends on",
+              "items": {
+                "type": "string"
+              },
+              "title": "Depends On",
+              "type": "array"
+            },
+            "name": {
+              "description": "name of the blueprint addon",
+              "title": "name",
+              "type": "string"
+            },
+            "version": {
+              "description": "version of the blueprint addon",
+              "title": "version",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "version"
+          ],
+          "title": "BlueprintAddon",
+          "type": "object"
+        },
+        "BlueprintList": {
+          "description": "Blueprint list",
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Blueprint"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "title": "BlueprintList",
+          "type": "object"
+        },
+        "BlueprintPSP": {
+          "properties": {
+            "enabled": {
+              "type": "boolean"
+            },
+            "names": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "scope": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "BlueprintSpec": {
+          "description": "blueprint spec",
+          "properties": {
+            "customAddons": {
+              "description": "custom addon configuration",
+              "items": {
+                "$ref": "#/components/schemas/BlueprintAddon"
+              },
+              "title": "Custom Addons",
+              "type": "array"
+            },
+            "defaultAddons": {
+              "$ref": "#/components/schemas/DefaultAddons"
+            },
+            "drift": {
+              "$ref": "#/components/schemas/DriftSpec"
+            },
+            "privateKubeAPIProxies": {
+              "description": "private  kubernetes API proxy networks",
+              "items": {
+                "$ref": "#/components/schemas/KubeAPIProxyNetwork"
+              },
+              "title": "Private Kuberenetes API Proxy Networks",
+              "type": "array"
+            },
+            "psp": {
+              "$ref": "#/components/schemas/BlueprintPSP"
+            },
+            "sharing": {
+              "$ref": "#/components/schemas/SharingSpec"
+            },
+            "version": {
+              "description": "version of the blueprint",
+              "title": "version",
+              "type": "string"
+            }
+          },
+          "title": "BlueprintSpec",
+          "type": "object"
+        },
+        "ClusterMeta": {
+          "description": "metadata of the cluster",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "Cluster",
+          "type": "object"
+        },
+        "CronTriggerConfig": {
+          "properties": {
+            "cronExpression": {
+              "type": "string"
+            },
+            "repo": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "paths": {
+                      "items": {
+                        "$ref": "#/components/schemas/File"
+                      },
+                      "type": "array"
+                    },
+                    "provider": {
+                      "type": "string"
+                    },
+                    "repository": {
+                      "type": "string"
+                    },
+                    "revision": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "chartName": {
+                      "type": "string"
+                    },
+                    "chartVersion": {
+                      "type": "string"
+                    },
+                    "repository": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "DefaultAddons": {
+          "description": "Default blueprint addons",
+          "properties": {
+            "enableIngress": {
+              "description": "enable default ingress",
+              "title": "Enable Ingress",
+              "type": "boolean"
+            },
+            "enableLogging": {
+              "description": "enable default logging",
+              "title": "Enable Logging",
+              "type": "boolean"
+            },
+            "enableMonitoring": {
+              "description": "enable default monitoring",
+              "title": "Enable Monitoring",
+              "type": "boolean"
+            },
+            "enableVM": {
+              "description": "enable virtual machine workloads",
+              "title": "Enable Virtual Machines",
+              "type": "boolean"
+            },
+            "monitoring": {
+              "$ref": "#/components/schemas/MonitoringConfig"
+            }
+          },
+          "title": "DefaultAddons",
+          "type": "object"
+        },
+        "DeployWorkloadConfig": {
+          "properties": {
+            "workload": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "DeployWorkloadTemplateConfig": {
+          "properties": {
+            "namespace": {
+              "type": "string"
+            },
+            "overrides": {
+              "items": {
+                "$ref": "#/components/schemas/OverrideTemplate"
+              },
+              "type": "array"
+            },
+            "placement": {
+              "$ref": "#/components/schemas/PlacementSpec"
+            },
+            "workloadTemplate": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "DriftSpec": {
+          "description": "drift reconcillation specification for a resource",
+          "properties": {
+            "action": {
+              "description": "drift reconcillation action",
+              "enum": [
+                "Notify",
+                "Deny"
+              ],
+              "title": "Action",
+              "type": "string"
+            },
+            "enabled": {
+              "description": "flag to specify if drift reconcillation is enabled",
+              "title": "Enabled",
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "enabled"
+          ],
+          "title": "DriftSpec",
+          "type": "object"
+        },
+        "File": {
+          "description": "file represents an file (or a directory) on the File System by",
+          "properties": {
+            "data": {
+              "description": "data is the base64 encoded contents of the file",
+              "format": "byte",
+              "title": "Data",
+              "type": "string"
+            },
+            "name": {
+              "description": "relative path of a artifact",
+              "title": "Name",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "File",
+          "type": "object"
+        },
+        "GitRepoConfig": {
+          "properties": {
+            "paths": {
+              "items": {
+                "$ref": "#/components/schemas/File"
+              },
+              "type": "array"
+            },
+            "provider": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "HelmInGitRepo": {
+          "description": "represents Helm files in a Git repo",
+          "properties": {
+            "chartPath": {
+              "$ref": "#/components/schemas/File"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "string"
+            },
+            "valuesPaths": {
+              "items": {
+                "$ref": "#/components/schemas/File"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "repository",
+            "revision",
+            "chartPath"
+          ],
+          "title": "Helm in Git Repo Artifact",
+          "type": "object"
+        },
+        "HelmInHelmRepo": {
+          "description": "represents Helm chart in a Helm repo",
+          "properties": {
+            "chartName": {
+              "type": "string"
+            },
+            "chartVersion": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "valuesPaths": {
+              "items": {
+                "$ref": "#/components/schemas/File"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "repository",
+            "chartName",
+            "chartVersion"
+          ],
+          "title": "Helm in Helm Repo",
+          "type": "object"
+        },
+        "HelmOptions": {
+          "description": "options for deploying Helm artifacts",
+          "properties": {
+            "atomic": {
+              "description": "deploy Helm artifact with atomic flag",
+              "title": "Atomic",
+              "type": "boolean"
+            },
+            "cleanUpOnFail": {
+              "type": "boolean"
+            },
+            "description": {
+              "type": "string"
+            },
+            "disableOpenAPIValidation": {
+              "type": "boolean"
+            },
+            "force": {
+              "description": "deploy Helm artifact with force flag",
+              "title": "Force",
+              "type": "boolean"
+            },
+            "keepHistory": {
+              "type": "boolean"
+            },
+            "maxHistory": {
+              "description": "limit Helm artifact history",
+              "format": "int32",
+              "title": "Max History",
+              "type": "integer"
+            },
+            "noHooks": {
+              "description": "deploy Helm artifact without hooks",
+              "title": "Force",
+              "type": "boolean"
+            },
+            "renderSubChartNotes": {
+              "description": "render sub chart notes",
+              "title": "Render Sub Chart Notes",
+              "type": "boolean"
+            },
+            "resetValues": {
+              "type": "boolean"
+            },
+            "reuseValues": {
+              "type": "boolean"
+            },
+            "setString": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "skipCRDs": {
+              "type": "boolean"
+            },
+            "timeout": {
+              "type": "string"
+            },
+            "wait": {
+              "description": "deploy Helm artifact with wait flag",
+              "title": "Wait",
+              "type": "boolean"
+            }
+          },
+          "title": "Helm Options",
+          "type": "object"
+        },
+        "HelmRepoConfig": {
+          "properties": {
+            "chartName": {
+              "type": "string"
+            },
+            "chartVersion": {
+              "type": "string"
+            },
+            "repository": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "InfraProvisioner": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/InfraProvisionerSpec"
+            }
+          },
+          "type": "object"
+        },
+        "InfraProvisionerConfig": {
+          "properties": {
+            "action": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "action": {
+                      "type": "string"
+                    },
+                    "backendFilePath": {
+                      "$ref": "#/components/schemas/File"
+                    },
+                    "backendVars": {
+                      "items": {
+                        "$ref": "#/components/schemas/KeyValue"
+                      },
+                      "type": "array"
+                    },
+                    "destroy": {
+                      "type": "boolean"
+                    },
+                    "envVars": {
+                      "items": {
+                        "$ref": "#/components/schemas/KeyValue"
+                      },
+                      "type": "array"
+                    },
+                    "inputVars": {
+                      "items": {
+                        "$ref": "#/components/schemas/KeyValue"
+                      },
+                      "type": "array"
+                    },
+                    "refresh": {
+                      "type": "boolean"
+                    },
+                    "targets": {
+                      "items": {
+                        "$ref": "#/components/schemas/TerraformTarget"
+                      },
+                      "type": "array"
+                    },
+                    "tfVarsFilePath": {
+                      "$ref": "#/components/schemas/File"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            "agents": {
+              "items": {
+                "$ref": "#/components/schemas/AgentMeta"
+              },
+              "type": "array"
+            },
+            "persistWorkingDirectory": {
+              "type": "boolean"
+            },
+            "provisioner": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "workingDirectory": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "InfraProvisionerList": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/InfraProvisioner"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "type": "object"
+        },
+        "InfraProvisionerSpec": {
+          "properties": {
+            "config": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "backendFilePath": {
+                      "$ref": "#/components/schemas/File"
+                    },
+                    "backendVars": {
+                      "items": {
+                        "$ref": "#/components/schemas/KeyValue"
+                      },
+                      "type": "array"
+                    },
+                    "envVars": {
+                      "items": {
+                        "$ref": "#/components/schemas/KeyValue"
+                      },
+                      "type": "array"
+                    },
+                    "inputVars": {
+                      "items": {
+                        "$ref": "#/components/schemas/KeyValue"
+                      },
+                      "type": "array"
+                    },
+                    "tfVarsFilePath": {
+                      "$ref": "#/components/schemas/File"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            "folderPath": {
+              "$ref": "#/components/schemas/File"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "InlineOverrideTemplate": {
+          "properties": {
+            "inline": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "KeyValue": {
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "KubeAPIProxyNetwork": {
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "ListMetadata": {
+          "description": "metadata for a list of resources",
+          "properties": {
+            "count": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "limt": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "offset": {
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          "required": [
+            "enabled"
+          ],
+          "title": "ListMetadata",
+          "type": "object"
+        },
+        "ManagedAlertManager": {
+          "description": "represents managed alert manager",
+          "properties": {
+            "configmap": {
+              "$ref": "#/components/schemas/File"
+            },
+            "configuraton": {
+              "$ref": "#/components/schemas/File"
+            },
+            "secret": {
+              "$ref": "#/components/schemas/File"
+            },
+            "statefulset": {
+              "$ref": "#/components/schemas/File"
+            }
+          },
+          "required": [
+            "configmap",
+            "secret",
+            "configuraton",
+            "statefulset"
+          ],
+          "title": "Managed Alert Manager",
+          "type": "object"
+        },
+        "Metadata": {
+          "description": "metadata of the resource",
+          "properties": {
+            "annotations": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "annotations of the resource",
+              "title": "Annotations",
+              "type": "object"
+            },
+            "description": {
+              "description": "description of the resource",
+              "title": "Description",
+              "type": "string"
+            },
+            "labels": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "labels of the resource",
+              "title": "Lables",
+              "type": "object"
+            },
+            "name": {
+              "description": "name of the resource",
+              "title": "Name",
+              "type": "string"
+            },
+            "project": {
+              "description": "Project of the resource",
+              "title": "Project",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "project"
+          ],
+          "title": "Metadata",
+          "type": "object"
+        },
+        "MonitoringComponent": {
+          "description": "Monitoring Component",
+          "properties": {
+            "discovery": {
+              "$ref": "#/components/schemas/MonitoringDiscoveryConfig"
+            },
+            "enabled": {
+              "description": "monitoring component is enabled",
+              "title": "Enabled",
+              "type": "boolean"
+            }
+          },
+          "title": "Monitoring Component",
+          "type": "object"
+        },
+        "MonitoringConfig": {
+          "description": "default monitoring configuration",
+          "properties": {
+            "helmExporter": {
+              "$ref": "#/components/schemas/MonitoringComponent"
+            },
+            "kubeStateMetrics": {
+              "$ref": "#/components/schemas/MonitoringComponent"
+            },
+            "metricsServer": {
+              "$ref": "#/components/schemas/MonitoringComponent"
+            },
+            "nodeExporter": {
+              "$ref": "#/components/schemas/MonitoringComponent"
+            },
+            "prometheusAdapter": {
+              "$ref": "#/components/schemas/MonitoringComponent"
+            },
+            "resources": {
+              "$ref": "#/components/schemas/ResourceRequirements"
+            }
+          },
+          "title": "Monitoring Config",
+          "type": "object"
+        },
+        "MonitoringDiscoveryConfig": {
+          "description": "Monitoring Discovery Config",
+          "properties": {
+            "labels": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "labels",
+              "title": "labels",
+              "type": "object"
+            },
+            "namespace": {
+              "description": "namespace",
+              "title": "Namespace",
+              "type": "string"
+            },
+            "resource": {
+              "description": "resource",
+              "title": "resource",
+              "type": "string"
+            }
+          },
+          "title": "Monitoring Discovery Config",
+          "type": "object"
+        },
+        "NextStage": {
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "weight": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "Organization": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/OrganizationSpec"
+            }
+          },
+          "type": "object"
+        },
+        "OrganizationList": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Organization"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "type": "object"
+        },
+        "OrganizationSpec": {
+          "properties": {
+            "active": {
+              "type": "boolean"
+            },
+            "addressLine1": {
+              "type": "string"
+            },
+            "addressLine2": {
+              "type": "string"
+            },
+            "approved": {
+              "type": "boolean"
+            },
+            "areClustersShared": {
+              "type": "boolean"
+            },
+            "billingAddress": {
+              "type": "string"
+            },
+            "city": {
+              "type": "string"
+            },
+            "country": {
+              "type": "string"
+            },
+            "isPrivate": {
+              "type": "boolean"
+            },
+            "isTotpEnabled": {
+              "type": "boolean"
+            },
+            "phone": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "zipcode": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "OverrideTemplate": {
+          "properties": {
+            "template": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "inline": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "paths": {
+                      "items": {
+                        "$ref": "#/components/schemas/File"
+                      },
+                      "type": "array"
+                    },
+                    "repository": {
+                      "type": "string"
+                    },
+                    "revision": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            "type": {
+              "type": "string"
+            },
+            "weight": {
+              "format": "int32",
+              "type": "integer"
+            }
+          },
+          "type": "object"
+        },
+        "Partner": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/PartnerSpec"
+            }
+          },
+          "type": "object"
+        },
+        "PartnerList": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Partner"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "type": "object"
+        },
+        "PartnerSpec": {
+          "properties": {
+            "domain": {
+              "type": "string"
+            },
+            "favIconLink": {
+              "type": "string"
+            },
+            "helpdeskEmail": {
+              "type": "string"
+            },
+            "host": {
+              "type": "string"
+            },
+            "isTOTPEnabled": {
+              "type": "boolean"
+            },
+            "logoLink": {
+              "type": "string"
+            },
+            "notificationEmail": {
+              "type": "string"
+            },
+            "opsHost": {
+              "type": "string"
+            },
+            "productName": {
+              "type": "string"
+            },
+            "settings": {
+              "properties": {
+                "fields": {
+                  "additionalProperties": true,
+                  "type": "object"
+                }
+              }
+            },
+            "supportTeamName": {
+              "type": "string"
+            },
+            "tosLink": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "Pipeline": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/PipelineSpec"
+            }
+          },
+          "type": "object"
+        },
+        "PipelineList": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Pipeline"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "type": "object"
+        },
+        "PipelineSpec": {
+          "properties": {
+            "active": {
+              "type": "boolean"
+            },
+            "sharing": {
+              "$ref": "#/components/schemas/SharingSpec"
+            },
+            "stages": {
+              "items": {
+                "$ref": "#/components/schemas/StageSpec"
+              },
+              "type": "array"
+            },
+            "triggers": {
+              "items": {
+                "$ref": "#/components/schemas/TriggerSpec"
+              },
+              "type": "array"
+            },
+            "variables": {
+              "items": {
+                "$ref": "#/components/schemas/VariableSpec"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "PlacementLabel": {
+          "description": "labels for placement of resource",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "value"
+          ],
+          "title": "PlacementLabel",
+          "type": "object"
+        },
+        "PlacementSpec": {
+          "description": "placement specification for a resource",
+          "properties": {
+            "labels": {
+              "items": {
+                "$ref": "#/components/schemas/PlacementLabel"
+              },
+              "type": "array"
+            },
+            "selector": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "key",
+            "value"
+          ],
+          "title": "PlacementSpec",
+          "type": "object"
+        },
+        "PreConditionSpec": {
+          "properties": {
+            "config": {
+              "oneOf": [
+                {
+                  "type": "string"
+                }
+              ]
+            },
+            "type": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "Project": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/ProjectSpec"
+            }
+          },
+          "type": "object"
+        },
+        "ProjectList": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Project"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "type": "object"
+        },
+        "ProjectMeta": {
+          "description": "metadata of the project for a resource",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "title": "ProjectMeta",
+          "type": "object"
+        },
+        "ProjectSpec": {
+          "properties": {
+            "default": {
+              "type": "boolean"
+            }
+          },
+          "type": "object"
+        },
+        "RepoOverrideTemplate": {
+          "properties": {
+            "paths": {
+              "items": {
+                "$ref": "#/components/schemas/File"
+              },
+              "type": "array"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "ResourceQuantity": {
+          "description": "Resource Quantity",
+          "properties": {
+            "cpu": {
+              "description": "Memory Quantity",
+              "title": "CPU Quantity",
+              "type": "string"
+            },
+            "memory": {
+              "description": "Memory Quantity",
+              "title": "Memory Quantity",
+              "type": "string"
+            }
+          },
+          "title": "Resource Quantity",
+          "type": "object"
+        },
+        "ResourceRequirements": {
+          "properties": {
+            "limits": {
+              "$ref": "#/components/schemas/ResourceQuantity"
+            }
+          },
+          "type": "object"
+        },
+        "SharingSpec": {
+          "description": "sharing specification for a resource",
+          "properties": {
+            "enabled": {
+              "description": "flag to specify if sharing is enabled for resource",
+              "title": "Enabled",
+              "type": "boolean"
+            },
+            "projects": {
+              "items": {
+                "$ref": "#/components/schemas/ProjectMeta"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "enabled"
+          ],
+          "title": "SharingSpec",
+          "type": "object"
+        },
+        "StageSpec": {
+          "properties": {
+            "config": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "approvers": {
+                      "items": {
+                        "$ref": "#/components/schemas/Approver"
+                      },
+                      "type": "array"
+                    },
+                    "timeout": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "workload": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "namespace": {
+                      "type": "string"
+                    },
+                    "overrides": {
+                      "items": {
+                        "$ref": "#/components/schemas/OverrideTemplate"
+                      },
+                      "type": "array"
+                    },
+                    "placement": {
+                      "$ref": "#/components/schemas/PlacementSpec"
+                    },
+                    "workloadTemplate": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "action": {
+                      "oneOf": [
+                        {
+                          "properties": {
+                            "action": {
+                              "type": "string"
+                            },
+                            "backendFilePath": {
+                              "$ref": "#/components/schemas/File"
+                            },
+                            "backendVars": {
+                              "items": {
+                                "$ref": "#/components/schemas/KeyValue"
+                              },
+                              "type": "array"
+                            },
+                            "destroy": {
+                              "type": "boolean"
+                            },
+                            "envVars": {
+                              "items": {
+                                "$ref": "#/components/schemas/KeyValue"
+                              },
+                              "type": "array"
+                            },
+                            "inputVars": {
+                              "items": {
+                                "$ref": "#/components/schemas/KeyValue"
+                              },
+                              "type": "array"
+                            },
+                            "refresh": {
+                              "type": "boolean"
+                            },
+                            "targets": {
+                              "items": {
+                                "$ref": "#/components/schemas/TerraformTarget"
+                              },
+                              "type": "array"
+                            },
+                            "tfVarsFilePath": {
+                              "$ref": "#/components/schemas/File"
+                            },
+                            "version": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      ]
+                    },
+                    "agents": {
+                      "items": {
+                        "$ref": "#/components/schemas/AgentMeta"
+                      },
+                      "type": "array"
+                    },
+                    "persistWorkingDirectory": {
+                      "type": "boolean"
+                    },
+                    "provisioner": {
+                      "type": "string"
+                    },
+                    "revision": {
+                      "type": "string"
+                    },
+                    "type": {
+                      "type": "string"
+                    },
+                    "workingDirectory": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "destinationRepo": {
+                      "$ref": "#/components/schemas/SystemSyncRepo"
+                    },
+                    "excludedResources": {
+                      "items": {
+                        "$ref": "#/components/schemas/SystemSyncResource"
+                      },
+                      "type": "array"
+                    },
+                    "gitToSystemSync": {
+                      "type": "boolean"
+                    },
+                    "includedResources": {
+                      "items": {
+                        "$ref": "#/components/schemas/SystemSyncResource"
+                      },
+                      "type": "array"
+                    },
+                    "sourceAsDestination": {
+                      "type": "boolean"
+                    },
+                    "sourceRepo": {
+                      "$ref": "#/components/schemas/SystemSyncRepo"
+                    },
+                    "systemToGitSync": {
+                      "type": "boolean"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            "name": {
+              "type": "string"
+            },
+            "next": {
+              "items": {
+                "$ref": "#/components/schemas/NextStage"
+              },
+              "type": "array"
+            },
+            "preConditions": {
+              "items": {
+                "$ref": "#/components/schemas/PreConditionSpec"
+              },
+              "type": "array"
+            },
+            "type": {
+              "type": "string"
+            },
+            "variables": {
+              "items": {
+                "$ref": "#/components/schemas/VariableSpec"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "Status": {
+          "description": "status of a resource",
+          "properties": {
+            "conditionStatus": {
+              "description": "status of the condition",
+              "enum": [
+                "StatusNotSet",
+                "StatusSubmitted",
+                "StatusOK",
+                "StatusFailed"
+              ],
+              "readOnly": true,
+              "title": "Condition Status",
+              "type": "string"
+            },
+            "conditionType": {
+              "description": "type of the status condition",
+              "readOnly": true,
+              "title": "Condition Type",
+              "type": "string"
+            },
+            "lastUpdated": {
+              "description": "when the condition status is last updated",
+              "properties": {
+                "values": {
+                  "format": "date-time",
+                  "type": "string"
+                }
+              },
+              "readOnly": true,
+              "title": "Last Updated"
+            },
+            "reason": {
+              "description": "reason of the last condition status",
+              "readOnly": true,
+              "title": "Reason",
+              "type": "string"
+            }
+          },
+          "readOnly": true,
+          "title": "Status",
+          "type": "object"
+        },
+        "SystemSyncConfig": {
+          "properties": {
+            "destinationRepo": {
+              "$ref": "#/components/schemas/SystemSyncRepo"
+            },
+            "excludedResources": {
+              "items": {
+                "$ref": "#/components/schemas/SystemSyncResource"
+              },
+              "type": "array"
+            },
+            "gitToSystemSync": {
+              "type": "boolean"
+            },
+            "includedResources": {
+              "items": {
+                "$ref": "#/components/schemas/SystemSyncResource"
+              },
+              "type": "array"
+            },
+            "sourceAsDestination": {
+              "type": "boolean"
+            },
+            "sourceRepo": {
+              "$ref": "#/components/schemas/SystemSyncRepo"
+            },
+            "systemToGitSync": {
+              "type": "boolean"
+            }
+          },
+          "type": "object"
+        },
+        "SystemSyncRepo": {
+          "properties": {
+            "path": {
+              "$ref": "#/components/schemas/File"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "SystemSyncResource": {
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "TerraformConfig": {
+          "properties": {
+            "backendFilePath": {
+              "$ref": "#/components/schemas/File"
+            },
+            "backendVars": {
+              "items": {
+                "$ref": "#/components/schemas/KeyValue"
+              },
+              "type": "array"
+            },
+            "envVars": {
+              "items": {
+                "$ref": "#/components/schemas/KeyValue"
+              },
+              "type": "array"
+            },
+            "inputVars": {
+              "items": {
+                "$ref": "#/components/schemas/KeyValue"
+              },
+              "type": "array"
+            },
+            "tfVarsFilePath": {
+              "$ref": "#/components/schemas/File"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "TerraformInfraAction": {
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "backendFilePath": {
+              "$ref": "#/components/schemas/File"
+            },
+            "backendVars": {
+              "items": {
+                "$ref": "#/components/schemas/KeyValue"
+              },
+              "type": "array"
+            },
+            "destroy": {
+              "type": "boolean"
+            },
+            "envVars": {
+              "items": {
+                "$ref": "#/components/schemas/KeyValue"
+              },
+              "type": "array"
+            },
+            "inputVars": {
+              "items": {
+                "$ref": "#/components/schemas/KeyValue"
+              },
+              "type": "array"
+            },
+            "refresh": {
+              "type": "boolean"
+            },
+            "targets": {
+              "items": {
+                "$ref": "#/components/schemas/TerraformTarget"
+              },
+              "type": "array"
+            },
+            "tfVarsFilePath": {
+              "$ref": "#/components/schemas/File"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "TerraformTarget": {
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "TriggerSpec": {
+          "properties": {
+            "config": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "repo": {
+                      "oneOf": [
+                        {
+                          "properties": {
+                            "paths": {
+                              "items": {
+                                "$ref": "#/components/schemas/File"
+                              },
+                              "type": "array"
+                            },
+                            "provider": {
+                              "type": "string"
+                            },
+                            "repository": {
+                              "type": "string"
+                            },
+                            "revision": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "chartName": {
+                              "type": "string"
+                            },
+                            "chartVersion": {
+                              "type": "string"
+                            },
+                            "repository": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      ]
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "cronExpression": {
+                      "type": "string"
+                    },
+                    "repo": {
+                      "oneOf": [
+                        {
+                          "properties": {
+                            "paths": {
+                              "items": {
+                                "$ref": "#/components/schemas/File"
+                              },
+                              "type": "array"
+                            },
+                            "provider": {
+                              "type": "string"
+                            },
+                            "repository": {
+                              "type": "string"
+                            },
+                            "revision": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        },
+                        {
+                          "properties": {
+                            "chartName": {
+                              "type": "string"
+                            },
+                            "chartVersion": {
+                              "type": "string"
+                            },
+                            "repository": {
+                              "type": "string"
+                            }
+                          },
+                          "type": "object"
+                        }
+                      ]
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            },
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "variables": {
+              "items": {
+                "$ref": "#/components/schemas/VariableSpec"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "UploadedHelmArtifact": {
+          "description": "represents an Helm chart and zero or more values files",
+          "properties": {
+            "chartPath": {
+              "$ref": "#/components/schemas/File"
+            },
+            "valuesPaths": {
+              "description": "represents a Helm Values by their relative path",
+              "items": {
+                "$ref": "#/components/schemas/File"
+              },
+              "title": "ValuesPaths",
+              "type": "array"
+            }
+          },
+          "required": [
+            "chartPath"
+          ],
+          "title": "Uploaded Helm Artifact",
+          "type": "object"
+        },
+        "UploadedYAMLArtifact": {
+          "description": "represents a list of YAML files",
+          "properties": {
+            "paths": {
+              "description": "list of YAML files represented by their relative path",
+              "items": {
+                "$ref": "#/components/schemas/File"
+              },
+              "title": "Paths",
+              "type": "array"
+            }
+          },
+          "required": [
+            "paths"
+          ],
+          "title": "Uploaded YAML Artifact",
+          "type": "object"
+        },
+        "VariableSpec": {
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "WebhookTriggerConfig": {
+          "properties": {
+            "repo": {
+              "oneOf": [
+                {
+                  "properties": {
+                    "paths": {
+                      "items": {
+                        "$ref": "#/components/schemas/File"
+                      },
+                      "type": "array"
+                    },
+                    "provider": {
+                      "type": "string"
+                    },
+                    "repository": {
+                      "type": "string"
+                    },
+                    "revision": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                {
+                  "properties": {
+                    "chartName": {
+                      "type": "string"
+                    },
+                    "chartVersion": {
+                      "type": "string"
+                    },
+                    "repository": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              ]
+            }
+          },
+          "type": "object"
+        },
+        "Workload": {
+          "description": "Workload declaration",
+          "properties": {
+            "apiVersion": {
+              "default": "apps.k8smgmt.io/v3",
+              "description": "API Version of the workload resource",
+              "title": "API Version",
+              "type": "string"
+            },
+            "kind": {
+              "default": "Workload",
+              "description": "Kind of the workload resource",
+              "title": "Kind",
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/WorkloadSpec"
+            },
+            "status": {
+              "$ref": "#/components/schemas/Status"
+            }
+          },
+          "required": [
+            "apiVersion",
+            "kind",
+            "metadata",
+            "spec"
+          ],
+          "title": "Workload",
+          "type": "object"
+        },
+        "WorkloadList": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/Workload"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "type": "object"
+        },
+        "WorkloadSpec": {
+          "properties": {
+            "artifact": {
+              "$ref": "#/components/schemas/ArtifactSpec"
+            },
+            "drift": {
+              "$ref": "#/components/schemas/DriftSpec"
+            },
+            "namespace": {
+              "type": "string"
+            },
+            "placement": {
+              "$ref": "#/components/schemas/PlacementSpec"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "type": "object"
+        },
+        "WorkloadTemplate": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/Metadata"
+            },
+            "spec": {
+              "$ref": "#/components/schemas/WorkloadTemplateSpec"
+            }
+          },
+          "type": "object"
+        },
+        "WorkloadTemplateList": {
+          "properties": {
+            "apiVersion": {
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/WorkloadTemplate"
+              },
+              "type": "array"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "metadata": {
+              "$ref": "#/components/schemas/ListMetadata"
+            }
+          },
+          "type": "object"
+        },
+        "WorkloadTemplateSpec": {
+          "properties": {
+            "artifact": {
+              "$ref": "#/components/schemas/ArtifactSpec"
+            }
+          },
+          "type": "object"
+        },
+        "YAMLInGitRepo": {
+          "description": "represents YAML files in a Git repo",
+          "properties": {
+            "paths": {
+              "items": {
+                "$ref": "#/components/schemas/File"
+              },
+              "type": "array"
+            },
+            "repository": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "repository",
+            "revision",
+            "paths"
+          ],
+          "title": "YAML In Git Repo Artifact",
+          "type": "object"
+        },
+        "YAMLOptions": {
+          "description": "options for deploying YAML artifacts",
+          "properties": {
+            "disableOpenAPIValidation": {
+              "type": "boolean"
+            },
+            "force": {
+              "type": "boolean"
+            }
+          },
+          "title": "YAML Options",
+          "type": "object"
+        }
+      },
+      "securitySchemes": {
+        "ApiKeyAuth": {
+          "description": "API Key",
+          "in": "header",
+          "name": "X-API-KEY",
+          "type": "apiKey"
+        }
+      }
+    },
+    "info": {
+      "description": "Kuberntes Management APIs",
+      "title": "Kuberntes Management APIs",
+      "version": "v3"
+    },
+    "openapi": "3.0.0",
+    "paths": {
+      "/apis/apps.k8smgmt.io/v3/projects/{project}/workloads": {
+        "get": {
+          "description": "Workload list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Workload List"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "post": {
+          "description": "Workload Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Workload Apply"
+          ]
+        }
+      },
+      "/apis/apps.k8smgmt.io/v3/projects/{project}/workloads/{name}": {
+        "delete": {
+          "description": "Workload Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Workload Delete"
+          ]
+        },
+        "get": {
+          "description": "Workload Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Workload Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/apps.k8smgmt.io/v3/projects/{project}/workloads/{name}/artifacts": {
+        "get": {
+          "description": "Workload Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Workload Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/apps.k8smgmt.io/v3/projects/{project}/workloads/{name}/status": {
+        "get": {
+          "description": "Workload Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Workload"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Workload Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/apps.k8smgmt.io/v3/projects/{project}/workloadtemplates": {
+        "get": {
+          "description": "WorkloadTemplate list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplateList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplateList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplateList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplateList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "WorkloadTemplate List"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "post": {
+          "description": "WorkloadTemplate Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "WorkloadTemplate Apply"
+          ]
+        }
+      },
+      "/apis/apps.k8smgmt.io/v3/projects/{project}/workloadtemplates/{name}": {
+        "delete": {
+          "description": "WorkloadTemplate Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "WorkloadTemplate Delete"
+          ]
+        },
+        "get": {
+          "description": "WorkloadTemplate Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "WorkloadTemplate Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/apps.k8smgmt.io/v3/projects/{project}/workloadtemplates/{name}/artifacts": {
+        "get": {
+          "description": "WorkloadTemplate Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/WorkloadTemplate"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "WorkloadTemplate Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/gitops.k8smgmt.io/v3/projects/{project}/agents": {
+        "get": {
+          "description": "Agent list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AgentList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AgentList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AgentList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AgentList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Agent List"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "post": {
+          "description": "Agent Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Agent Apply"
+          ]
+        }
+      },
+      "/apis/gitops.k8smgmt.io/v3/projects/{project}/agents/{name}": {
+        "delete": {
+          "description": "Agent Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Agent Delete"
+          ]
+        },
+        "get": {
+          "description": "Agent Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Agent Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/gitops.k8smgmt.io/v3/projects/{project}/agents/{name}/status": {
+        "get": {
+          "description": "Agent Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Agent"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Agent Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/gitops.k8smgmt.io/v3/projects/{project}/infraprovisioners": {
+        "get": {
+          "description": "InfraProvisioner list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisionerList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisionerList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisionerList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisionerList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "InfraProvisioner List"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "post": {
+          "description": "InfraProvisioner Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "InfraProvisioner Apply"
+          ]
+        }
+      },
+      "/apis/gitops.k8smgmt.io/v3/projects/{project}/infraprovisioners/{name}": {
+        "delete": {
+          "description": "InfraProvisioner Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "InfraProvisioner Delete"
+          ]
+        },
+        "get": {
+          "description": "InfraProvisioner Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/InfraProvisioner"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "InfraProvisioner Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/gitops.k8smgmt.io/v3/projects/{project}/pipelines": {
+        "get": {
+          "description": "Pipeline list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PipelineList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PipelineList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PipelineList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PipelineList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Pipeline List"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "post": {
+          "description": "Pipeline Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Pipeline Apply"
+          ]
+        }
+      },
+      "/apis/gitops.k8smgmt.io/v3/projects/{project}/pipelines/{name}": {
+        "delete": {
+          "description": "Pipeline Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Pipeline Delete"
+          ]
+        },
+        "get": {
+          "description": "Pipeline Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Pipeline"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Pipeline Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/infra.k8smgmt.io/v3/projects/{project}/addons": {
+        "get": {
+          "description": "Addon list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AddonList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AddonList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AddonList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AddonList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Addon List"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "post": {
+          "description": "Addon Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Addon Apply"
+          ]
+        }
+      },
+      "/apis/infra.k8smgmt.io/v3/projects/{project}/addons/{name}": {
+        "delete": {
+          "description": "Addon Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Addon Delete"
+          ]
+        },
+        "get": {
+          "description": "Addon Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Addon Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/infra.k8smgmt.io/v3/projects/{project}/addons/{name}/artifacts": {
+        "get": {
+          "description": "Addon Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Addon"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Addon Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/infra.k8smgmt.io/v3/projects/{project}/blueprints": {
+        "get": {
+          "description": "Blueprint list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BlueprintList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BlueprintList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BlueprintList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/BlueprintList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Blueprint List"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "post": {
+          "description": "Blueprint Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Blueprint Apply"
+          ]
+        }
+      },
+      "/apis/infra.k8smgmt.io/v3/projects/{project}/blueprints/{name}": {
+        "delete": {
+          "description": "Blueprint Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Blueprint Delete"
+          ]
+        },
+        "get": {
+          "description": "Blueprint Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Blueprint"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Blueprint Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "project of the resource",
+            "in": "path",
+            "name": "project",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/system.k8smgmt.io/v3/organizations": {
+        "get": {
+          "description": "Organization list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrganizationList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrganizationList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrganizationList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrganizationList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Organization List"
+          ]
+        },
+        "post": {
+          "description": "Organization Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Organization Apply"
+          ]
+        }
+      },
+      "/apis/system.k8smgmt.io/v3/organizations/{name}": {
+        "delete": {
+          "description": "Organization Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Organization Delete"
+          ]
+        },
+        "get": {
+          "description": "Organization Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Organization Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/system.k8smgmt.io/v3/partners": {
+        "get": {
+          "description": "Partner list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PartnerList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PartnerList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PartnerList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PartnerList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Partner List"
+          ]
+        },
+        "post": {
+          "description": "Partner Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Partner Apply"
+          ]
+        }
+      },
+      "/apis/system.k8smgmt.io/v3/partners/{name}": {
+        "delete": {
+          "description": "Partner Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Partner Delete"
+          ]
+        },
+        "get": {
+          "description": "Partner Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Partner"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Partner Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "/apis/system.k8smgmt.io/v3/projects": {
+        "get": {
+          "description": "Project list endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectList"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectList"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ProjectList"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Project List"
+          ]
+        },
+        "post": {
+          "description": "Project Apply endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "400": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Project Apply"
+          ]
+        }
+      },
+      "/apis/system.k8smgmt.io/v3/projects/{name}": {
+        "delete": {
+          "description": "Project Delete endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Project Delete"
+          ]
+        },
+        "get": {
+          "description": "Project Detail endpoint",
+          "responses": {
+            "200": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              },
+              "description": "Success"
+            },
+            "401": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Unauthorized"
+            },
+            "404": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Bad Request"
+            },
+            "502": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/APIError"
+                  }
+                }
+              },
+              "description": "Internal Error"
+            },
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                },
+                "application/yaml": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              },
+              "description": "Success"
+            }
+          },
+          "tags": [
+            "Project Detail"
+          ]
+        },
+        "parameters": [
+          {
+            "description": "name of the resource",
+            "in": "path",
+            "name": "name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "security": [
+      {
+        "ApiKeyAuth": []
+      }
+    ]
+  }
